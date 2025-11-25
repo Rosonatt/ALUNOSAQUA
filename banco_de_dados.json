@@ -1,0 +1,394 @@
+{
+    "users": {
+        "alunos": {
+            "202411251": {
+                "password": "scrypt:32768:8:1$dE0XvCVTdhqsPQ5n$80412e078f47dec55e1c10f043765ab89219b5043e9a2af0440fcd0b65ece442bb5cdfcfac76d79792cf835ec8d952d3ba65cb13daa738facbcd33302b0ac7fa",
+                "nome": "Rosonatt Ferreira Ramos",
+                "turma": "9A",
+                "notas": {
+                    "Matemática": [
+                        8,
+                        7
+                    ],
+                    "Português": [
+                        9,
+                        8
+                    ],
+                    "História": [
+                        7,
+                        7
+                    ],
+                    "Ciências": [
+                        10,
+                        9
+                    ]
+                },
+                "faltas": {
+                    "Matemática": [
+                        {
+                            "date": "2025-10-01",
+                            "justified": false
+                        }
+                    ],
+                    "Português": [
+                        {
+                            "date": "2025-10-02",
+                            "justified": false
+                        },
+                        {
+                            "date": "2025-09-15",
+                            "justified": false
+                        }
+                    ]
+                },
+                "provas": {
+                    "Matemática": [
+                        "2025-10-06"
+                    ]
+                }
+            },
+            "202411281": {
+                "password": "scrypt:32768:8:1$RaJ1xA8N6HvRo7ly$424a0679d36b45687c776370779b0457643a6cbaa69787a14191f674287e6e8aec0e65ac360fc771af7d3a2aff9aaa67c47eb8555a74215fb1cabf59077dfb95",
+                "nome": "Ryan Guiwison",
+                "turma": "8B",
+                "notas": {
+                    "Matemática": [
+                        5,
+                        4
+                    ],
+                    "Português": [
+                        6,
+                        7.5
+                    ],
+                    "Artes": [
+                        5,
+                        5
+                    ]
+                },
+                "faltas": {
+                    "Matemática": [
+                        {
+                            "date": "2025-10-03",
+                            "justified": false
+                        },
+                        {
+                            "date": "2025-10-06",
+                            "justified": false
+                        },
+                        {
+                            "date": "2025-10-07",
+                            "justified": false
+                        }
+                    ],
+                    "Português": [
+                        {
+                            "date": "2025-09-08",
+                            "justified": false
+                        },
+                        {
+                            "date": "2025-09-09",
+                            "justified": false
+                        }
+                    ],
+                    "Artes": [
+                        {
+                            "date": "2025-08-10",
+                            "justified": false
+                        },
+                        {
+                            "date": "2025-08-15",
+                            "justified": false
+                        },
+                        {
+                            "date": "2025-08-16",
+                            "justified": false
+                        },
+                        {
+                            "date": "2025-08-17",
+                            "justified": false
+                        },
+                        {
+                            "date": "2025-08-18",
+                            "justified": false
+                        }
+                    ]
+                },
+                "provas": {}
+            },
+            "202411333": {
+                "password": "scrypt:32768:8:1$LEn3tXB2gbB8zrms$190df6e8cfc4ffe4ed675e5458338e3a4ea7e81e9d283b2e13537c32e839bdb604db6b910cef313ec0349b9201e6d13fd3434c07e8eb4f302909b302cd9b370b",
+                "nome": "Bruno Alves",
+                "turma": "7C",
+                "notas": {
+                    "Artes": [
+                        5,
+                        4
+                    ],
+                    "Português": [
+                        7,
+                        6.5
+                    ]
+                },
+                "faltas": {
+                    "Artes": [
+                        {
+                            "date": "2025-09-11",
+                            "justified": false
+                        }
+                    ]
+                },
+                "provas": {}
+            },
+            "202411325": {
+                "password": "scrypt:32768:8:1$4k2YzrjGlR3ME0uy$f3745d8c159d57e61cf2b5c10705993ee943a3db6d3a7f8577f42f4f49662a1127a463f1d6b830b78d159bcdb5da122e12d74000ba2f9b1b58b630db32601316",
+                "nome": "Natalia Crys Cardoso",
+                "turma": "9A",
+                "notas": {
+                    "Inglês": [
+                        8.5,
+                        9
+                    ],
+                    "Física": [
+                        6.5,
+                        7.5
+                    ]
+                },
+                "faltas": {},
+                "provas": {}
+            },
+            "202411265": {
+                "password": "scrypt:32768:8:1$JZ12x1yyM7Ax2dMo$8512f4e19d508b62e3351fc207d0eec976ae08a8d91771f3db1978b59479c74c457cdf32ccb9737efc18d41e02c8c6e6ff7bf6ac1c5373a164b051a3dd6eed6d",
+                "nome": "Kevin Paula",
+                "turma": "6D",
+                "notas": {
+                    "Química": [
+                        7,
+                        7
+                    ],
+                    "Literatura": [
+                        8,
+                        6
+                    ]
+                },
+                "faltas": {
+                    "Química": [
+                        {
+                            "date": "2025-09-05",
+                            "justified": false
+                        },
+                        {
+                            "date": "2025-09-12",
+                            "justified": false
+                        },
+                        {
+                            "date": "2025-09-19",
+                            "justified": false
+                        }
+                    ]
+                },
+                "provas": {}
+            },
+            "202411271": {
+                "password": "scrypt:32768:8:1$c37dfAYJ88OQyg3m$319d5dc247e011942dff999635ff1ae81cf4c65184b7b239d3f810125ab4c157f538a489a54a41ed60b9955c0d25f983384f8b45a6da28d7f823163af66db1a5",
+                "nome": "Raissa Leite",
+                "turma": "5E",
+                "notas": {
+                    "Sociologia": [
+                        9,
+                        8.5
+                    ],
+                    "Filosofia": [
+                        7,
+                        7
+                    ]
+                },
+                "faltas": {
+                    "Sociologia": [
+                        {
+                            "date": "2025-09-23",
+                            "justified": false
+                        }
+                    ]
+                },
+                "provas": {}
+            },
+            "55667": {
+                "password": "scrypt:32768:8:1$8cK70oh7fLXIdRFr$9cf14c59866739d233b8b66da6236c044d9ef6b9703afe53a224633707b882182c2f1bad975ebeb9cf0b6e824cbfa1383b6926ee6642e7544017aed002a016fd",
+                "nome": "João Candia",
+                "turma": "4F",
+                "notas": {
+                    "Educação Física": [
+                        9.5,
+                        9
+                    ],
+                    "Biologia": [
+                        6,
+                        6.5
+                    ]
+                },
+                "faltas": {},
+                "provas": {
+                    "Biologia": [
+                        "2025-09-26"
+                    ]
+                }
+            },
+            "66778": {
+                "password": "scrypt:32768:8:1$Xe0B9KdmcEQJruet$646a3e6b4ab02b9b4fca7054c79276a10161a808911d5dd866ee945ef1d2da75b380d2f809e84583810abe88be49f3ac35d46613e9fa324fa3b5cd334b41be3b",
+                "nome": "Ronald Carvalho",
+                "turma": "3G",
+                "notas": {
+                    "Matemática": [
+                        7,
+                        7
+                    ],
+                    "Português": [
+                        7.5,
+                        7.5
+                    ]
+                },
+                "faltas": {
+                    "Matemática": [
+                        {
+                            "date": "2025-09-04",
+                            "justified": false
+                        }
+                    ],
+                    "Português": [
+                        {
+                            "date": "2025-09-18",
+                            "justified": false
+                        }
+                    ]
+                },
+                "provas": {}
+            },
+            "202411444": {
+                "password": "scrypt:32768:8:1$fUa3QmCHPUnD3f3H$81d59687f66f6d321bdb5a3bbd9868a7f733007d9f24da7d73d1dcb1ad055320cf1c38bbddfd3e00f3240b79342b7f35ddc5fcc58073419cb089bb676a538047",
+                "nome": "risadinha gabriel da bahia",
+                "turma": "24b",
+                "notas": {
+                    "Matemática": [
+                        6.0,
+                        1.0
+                    ]
+                },
+                "faltas": {
+                    "Matemática": [
+                        {
+                            "date": "2025-09-09",
+                            "justified": true
+                        },
+                        {
+                            "date": "2025-05-10",
+                            "justified": false
+                        }
+                    ]
+                },
+                "provas": {}
+            }
+        },
+        "pais": {
+            "pai_rosonatt": {
+                "password": "scrypt:32768:8:1$Qfr0t1kEdBGASepA$dd12164721a4e099171ca176682fc201a0e9718f0e162d321c0acfa06c879b4b4d820a660b6de656730e9b8a9e701f0786cf0451aab323ed2456a708d2d39109",
+                "nome": "Responsável Rosonatt",
+                "filho_matricula": "202411251"
+            },
+            "pai_ryan": {
+                "password": "scrypt:32768:8:1$pGk1rI2dDSGtkkuw$fcbf875afc9e3cffbdd45fc362feb68b2f31f0ed6b20ed64aa03772e8a154586a04b6853e3918f10ee507616c59677e5d86bdb3eed8f3b171b49dfba3cb0440c",
+                "nome": "Responsável Ryan",
+                "filho_matricula": "202411281"
+            },
+            "pai_bruno": {
+                "password": "scrypt:32768:8:1$HBLjkkdFLUYa833j$6bc266e048b407821101086a98cc3a9dcc3bc8871a7388c78daa5facf2ce61e38e2569eb9b24ab1c3b11aef7ee51ae8421d0a468e58291277791d589ae7f7913",
+                "nome": "Responsável Bruno",
+                "filho_matricula": "202411333"
+            },
+            "mae_natalia": {
+                "password": "scrypt:32768:8:1$avcTljrlim2U8SBf$bc810454fa22064fe24c0fbacb0f48c9c651d44964c2b62a0182de9155c414e5eaff5b607134026490cbd210301e23d81713147738a8cba093da27b096e62f97",
+                "nome": "Responsável Natalia",
+                "filho_matricula": "202411325"
+            },
+            "pai_kevin": {
+                "password": "scrypt:32768:8:1$9rNmiMTqgvQjbYSJ$ba4cdaf28c17314184a8ae2f93092a55204ec1368ed20e9a7c15a6d0fbdcdd2aeec1987634fe50e8c66935c38403f145d4d9e3d6b98d2b2d539821958010268f",
+                "nome": "Responsável Kevin",
+                "filho_matricula": "202411265"
+            },
+            "mae_raissa": {
+                "password": "scrypt:32768:8:1$HqXlPzeBEQoQh6Jm$e841d28d8136e3b71ca281bacdd36a6c0eae680cc0dc3cbfe025f1b7b596a508a2d89b0dbc4f944143b16df384ba7319546abe5d996a22bede4981f7cbc25e1f",
+                "nome": "Responsável Raissa",
+                "filho_matricula": "202411271"
+            },
+            "pai_joao": {
+                "password": "scrypt:32768:8:1$8uDJWj6NUpz3IboE$a5f3a658f99183b9aeefd0b08985c3ec410cc1076344eb57da3c3490641273a5f0768e35269464fdcdd8f137d15d928d6af5eef98058b2ca2a61b680fbf0f965",
+                "nome": "Responsável João",
+                "filho_matricula": "55667"
+            },
+            "mae_ronald": {
+                "password": "scrypt:32768:8:1$SROH22RQTEgMD3Mw$8e8fbc93507b876bcdb1bedeccdadbb0198dd397d0c71070efa5e222311313e906d10deb9af2167d69a6881e1b2398d0f3a5b81cc34123e6deb6b64a46ff923e",
+                "nome": "Responsável Ronald",
+                "filho_matricula": "66778"
+            }
+        },
+        "professores": {
+            "202411000": {
+                "password": "scrypt:32768:8:1$lR29rVtcgEhHGCeF$63faf963888a6901e220a13e18f1fe10825610069fb562a55c7dd2b17fc08460ca7209ac145e74dc4159380f6eee777c2a769777c90f583e38a4a44b7a4991d1",
+                "nome": "Lucas",
+                "disciplinas": [
+                    "Matemática",
+                    "Ciências"
+                ]
+            },
+            "202411111": {
+                "password": "scrypt:32768:8:1$nXkSHU1MdYjd43kt$cf806baaeee01574e233f2498786fd01c3e39ccc1b8056b2aeaad941780342622268752727e6e9c26c87cfce035d04e7a3a19c06fd22e8dc09fdb49348b15169",
+                "nome": "André",
+                "disciplinas": [
+                    "Português",
+                    "História"
+                ]
+            },
+            "202411222": {
+                "password": "scrypt:32768:8:1$r6S5wuBOMWbfv1v3$47c96ade29b3741bc54a6fdd444f93588899c9c41c9687a03c7bc04cef8a90be48164afb2d5f28efa6cffb39e5ec68c89adb211e5fd3c6e81a7be433fd8e1053",
+                "nome": "Diego",
+                "disciplinas": [
+                    "Artes",
+                    "Educação Física"
+                ]
+            },
+            "202411333": {
+                "password": "scrypt:32768:8:1$IKEXqwtQXTNw0JCI$2f9fb54e3c45357fdf593976dba3d069df263e6ef327b9b74d119e4c05eb8247386bae5dce1379b1141f55efc4b8955fff70a882468ec67b68e58736cec587fc",
+                "nome": "Gioliano",
+                "disciplinas": [
+                    "Geografia",
+                    "Inglês"
+                ]
+            }
+        },
+        "psicopedagogos": {
+            "psi_joana": {
+                "password": "scrypt:32768:8:1$CH1AcFBQWRYkPAxw$1e479cbce6b97cf3b9a104c0314b27c5ba6ac2cad05ae6c79647fc4c4d04d20acc91acd1f00b8455e8a9169e33756a0c88c4b1eaa4fcc7b646582ed05768657f",
+                "nome": "Joana"
+            },
+            "psi_pedro": {
+                "password": "scrypt:32768:8:1$wwwI8hIk6XESfUl1$6bb994afac1e4ec03fa5a50bdde06a34fc59082a6430af347935ed9dc817db5ba6661d941c61000c4946bbe95f85ad40e184ec127fa04f13cb592a87f9f92140",
+                "nome": "Pedro"
+            },
+            "coord_educ": {
+                "password": "scrypt:32768:8:1$pQHnoXEv3xMI4jBb$8910c7001ff1d22bafea56a0ab8848709e58e2a6a24e0585b52d39f9072d8ac3de1861074372ea153daeefe8189d1b2eff7afa0722fb7b1a78dbf9aa1b4ab222",
+                "nome": "Coordenadora Maria"
+            },
+            "sup_psi": {
+                "password": "scrypt:32768:8:1$p8GWn2yu4Xy0UqHv$b8f5fecbac70b1e065237f821a27217617e8cdb3edacca1a0bc9353d9917c3eca8d7b42730d423eb3247229b578b6a9440b5492bc93a736c611d690fc18b3284",
+                "nome": "Supervisor Antonio"
+            }
+        },
+        "admins": {
+            "admin": {
+                "password": "scrypt:32768:8:1$dZg0vOY64OS2JP8Y$ced064ca01d65a9934bb50bafaef97136eaed656156eecdc9e170450da26b724c27b58986f2ab9e849b40de0551926dffb64ddee7a90eb2cdd647fcc66928af1",
+                "nome": "Administrador Geral"
+            }
+        }
+    },
+    "denuncias": {},
+    "chat_messages": {}
+}

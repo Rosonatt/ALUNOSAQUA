@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard do Professor - AlunoSaqua</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://kit.fontawesome.com/703f9c0594.js" crossorigin="anonymous"></script>
+    <style>
+        main.dashboard-content {
+            background-image: url("{{ url_for('static', filename='images/fundotest.png') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        /* Estilos adicionais */
+        .stat-card-prof {
+            border: 1px solid var(--medium-grey);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            text-align: center;
+            background-color: var(--white);
+        }
+        .stat-card-prof .icon {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+        }
+        .highlight-bar {
+            background-color: var(--light-grey);
+            border-radius: 6px;
+            padding: 15px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center" href="#">
+                    <img src="{{ url_for('static', filename='images/logocp.png') }}" alt="AlunoSaqua Logo">
+                    <h1 class="ms-2">AlunoSaqua</h1>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <div class="navbar-nav ms-auto">
+                        <span class="navbar-text me-3">Bem-vindo(a), Prof. {{ session['display_name'] }}!</span>
+                        <a class="nav-link" href="{{ url_for('main.logout') }}">
+                            <i class="fas fa-sign-out-alt me-1"></i>Sair
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <main class="dashboard-content">
+        <div class="container">
+            <h2 class="text-center text-white mb-4">Gerenciamento de Alunos</h2>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'danger' else category }}" role="alert">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% set alunos_reprovados = alunos | selectattr('media', 'number') | selectattr('media', '<', NOTA_MINIMA) | list %}
+
+            <div class="highlight-bar mb-4">
+                <form method="GET" action="{{ url_for('professor.dashboard') }}" class="row g-3 align-items-center justify-content-center">
+                    <div class="col-auto">
+                        <i class="fas fa-book-reader fa-lg me-2 text-primary"></i>
+                        <label for="disciplina" class="col-form-label fw-bold">Visualizar disciplina:</label>
+                    </div>
+                    <div class="col-auto">
+                        <select name="disciplina" id="disciplina" class="form-select" onchange="this.form.submit()">
+                        {% for disc in disciplinas %}
+                            <option value="{{ disc }}" {% if disc == disciplina_selecionada %}selected{% endif %}>{{ disc }}</option>
+                        {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+
+
+            <div class="row g-3 mb-4">
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="stat-card-prof">
+                        <div class="icon text-primary"><i class="fas fa-users"></i></div>
+                        <h4 class="mb-0">{{ alunos|length }}</h4>
+                        <small class="text-muted">Alunos na Lista</small>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="stat-card-prof">
+                         <div class="icon text-danger"><i class="fas fa-user-times"></i></div>
+                        <h4 class="mb-0">{{ alunos_reprovados|length }}</h4>
+                        <small class="text-muted">Alunos Abaixo da Média</small>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 d-none d-lg-block">
+                    <div class="stat-card-prof">
+                        <div class="icon text-success"><i class="fas fa-check-circle"></i></div>
+                        <h4 class="mb-0">{{ NOTA_MINIMA }}</h4>
+                        <small class="text-muted">Média Necessária</small>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <h3>Alunos de {{ disciplina_selecionada }}</h3>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover table-bordered align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Matrícula</th>
+                                    <th>Nome</th>
+                                    <th>1ª Avaliação</th>
+                                    <th>2ª Avaliação</th>
+                                    <th>Média</th>
+                                    <th>Faltas</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for aluno in alunos %}
+                                <tr>
+                                    <td>{{ aluno.matricula }}</td>
+                                    <td>{{ aluno.nome }}</td>
+                                    
+                                    <td>
+                                        {% if aluno.nota1 is number and aluno.nota1 < NOTA_MINIMA %}
+                                            <strong class="text-danger">{{ aluno.nota1 }}</strong>
+                                        {% elif aluno.nota1 is number %}
+                                            {{ aluno.nota1 }}
+                                        {% else %}
+                                            <span class="text-secondary">{{ aluno.nota1 }}</span>
+                                        {% endif %}
+                                    </td>
+                                    
+                                    <td>
+                                        {% if aluno.nota2 is number and aluno.nota2 < NOTA_MINIMA %}
+                                            <strong class="text-danger">{{ aluno.nota2 }}</strong>
+                                        {% elif aluno.nota2 is number %}
+                                            {{ aluno.nota2 }}
+                                        {% else %}
+                                            <span class="text-secondary">{{ aluno.nota2 }}</span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td>
+                                        {% if aluno.media is number and aluno.media < NOTA_MINIMA %}
+                                            <strong class="text-danger">{{ aluno.media }}</strong>
+                                        {% elif aluno.media is number %}
+                                            <strong class="text-success">{{ aluno.media }}</strong>
+                                        {% else %}
+                                            <span class="text-secondary">{{ aluno.media }}</span>
+                                        {% endif %}
+                                    </td>
+                                    
+                                    <td>
+                                        {% set total_faltas = aluno.faltas | default(0) | int %}
+                                        
+                                        {% if total_faltas >= 4 %}
+                                            <strong class="text-danger">{{ total_faltas }}</strong>
+                                        {% elif total_faltas == 3 %}
+                                            <strong class="text-warning">{{ total_faltas }}</strong>
+                                        {% else %}
+                                            {{ total_faltas }}
+                                        {% endif %}
+                                    </td>
+                                    
+                                    <td>
+                                        <a id="cc" href="{{ url_for('professor.atualizar_dados', matricula=aluno.matricula, disciplina=disciplina_selecionada) }}">Editar Notas/Faltas <i class="fa-solid fa-pen-to-square"></i></a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

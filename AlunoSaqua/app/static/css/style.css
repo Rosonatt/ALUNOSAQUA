@@ -1,0 +1,275 @@
+
+@import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@100..900&display=swap');
+
+:root {
+    --primary-green: #2B7A0E;
+    --secondary-green: #1F5C0A;
+    --light-green: #90EE90;
+    --white: #FFFFFF;
+    --dark-grey: #333333;
+    --medium-grey: #CCCCCC;
+    --light-grey: #F0F0F0;
+    --red-danger: #dc3545;
+    --yellow-warning: #ffc107;
+    --blue-info: #17a2b8;
+    --input-border: #dcdcdc;
+    --status-aprovado: #28a745;
+    --status-reprovado: #dc3545;
+}
+
+* {
+    font-family: "League Spartan", sans-serif;
+    box-sizing: border-box;
+}
+
+body {
+    line-height: 1.6;
+    color: var(--dark-grey);
+    background: #028d16;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex-grow: 1;
+}
+
+/* Mantém o fundo escuro para a página de login e cadastro info */
+body.login, body.register {
+    background-color: #028b16;
+}
+
+/* Estilos da Barra de Navegação (Cabeçalho) */
+.navbar {
+    background-color: #028d16;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.navbar-brand img {
+    height: 50px;
+}
+
+.navbar-brand h1 {
+    font-size: 1.7em;
+    color: var(--white);
+    margin: 0;
+}
+
+.nav-link, .navbar-text {
+    color: var(--white) !important;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+/* Seção Hero (Página Inicial) */
+.hero {
+    background-image: url(../images/imagemdeteste.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    color: var(--dark-grey);
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+}
+
+/* ==================================================================== */
+/* ALTERAÇÃO IMPORTANTE: Removido 'font-size' fixo para permitir      */
+/* que as classes responsivas do Bootstrap funcionem corretamente.      */
+/* ==================================================================== */
+.hero h2 {
+    color: black;
+}
+
+.hero p {
+    color: black;
+}
+/* ==================================================================== */
+
+/* Conteúdo Principal e Containers de Formulário */
+.dashboard-content {
+    padding: 50px 0;
+    width: 100%;
+}
+
+.form-container {
+    padding: 50px 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+    background-image: url(../images/fundotest.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+/* Container de informações da página de cadastro */
+.container-info {
+    border: none;
+    border-radius: 12px;
+    padding: 25px;
+    background-color: white;
+    max-width: 700px;
+}
+.container-info i {
+    font-size: 15px;
+}
+.container-info h2 {
+    color: black;
+}
+.container-info h4 {
+    font-size: 25px;
+    color: black;
+}
+
+/* Estilos de Botão Personalizados */
+.btn-primary {
+    background-color: #028d16;
+    color: var(--white);
+    padding: 14px 30px;
+    border-radius: 6px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: 0.5s;
+}
+
+.btn-primary:hover {
+    color: var(--white);
+    transform: scale(1.03);
+    box-shadow: 0px 0px 7px black;
+}
+
+.btn-secondary {
+    background-color: #8B0000;
+    color: var(--white);
+    padding: 14px 30px;
+    border-radius: 6px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: 0.5s;
+}
+
+.btn-secondary:hover {
+    color: var(--white);
+    transform: scale(1.03);
+    box-shadow: 0px 0px 10px black;
+}
+
+.btn-close-custom {
+    background-color: #dc3545;
+    color: var(--white);
+    padding: 14px 30px;
+    border-radius: 6px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: 0.5s;
+}
+.btn-close-custom:hover {
+    color: var(--white);
+    transform: scale(1.1);
+    box-shadow: 0px 0px 10px black;
+}
+
+.btn-comeback {
+    text-decoration: none;
+    font-size: 18px;
+    color: var(--white);
+    border: none;
+    cursor: pointer;
+    padding: 15px;
+    background-color: #8B0000;
+    border-radius: 10px;
+    transition: 0.6s;
+    display: inline-block;
+}
+
+/* Estilos do Card */
+.card {
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    border: none;
+}
+
+.card h3 { 
+    color: #028b16;
+    margin-bottom: 18px; 
+    font-size: 20px;
+}
+.card h4 {
+    font-size: 20px;
+    color: #028b16;
+    margin-top: 10px;
+}
+.card p, .card a, .fandp, table th, table td {
+    font-size: 20px;
+}
+
+/* Estilos de Tabela */
+table th {
+    background-color: #f0f8f0;
+}
+
+/* Estilos de Status */
+.status-aprovado { color: var(--status-aprovado); font-weight: bold; }
+.status-reprovado { color: var(--status-reprovado); font-weight: bold; }
+
+.final-status {
+    font-size: 1.2em;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    margin-top: 20px;
+}
+.final-status.status-aprovado { background-color: rgba(40, 167, 69, 0.1); border: 1px solid var(--status-aprovado); color: var(--status-aprovado); }
+.final-status.status-reprovado { background-color: rgba(220, 53, 69, 0.1); border: 1px solid var(--status-reprovado); color: var(--status-reprovado); }
+
+.reprovadas-list {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    border-radius: 5px;
+}
+
+/* Rodapé */
+footer {
+    background-color: #028b16;
+    color: var(--white);
+    padding: 15px 0;
+    margin-top: auto;
+    width: 100%;
+    box-shadow: 10px 10px 15px rgba(1, 0, 0, 0.5);
+}
+
+/* IDs e classes específicas */
+#ND, .form-container h2 {
+    color: #028b16;
+}
+
+#FDS {
+    padding: 20px;
+    font-size: 20px;
+    text-align: left;
+}
+#cc, #details {
+    text-decoration: none;
+    color: black;
+    transition: 0.5s;
+}
+#cc:hover, #details:hover {
+    color: #028b16;
+}
+#attdados {
+    color: black;
+}
+#MCD {
+    font-size: 20px;
+    color: #000000;
+}
+.infocad {
+    text-decoration: none;
+    font-size: 18px;
+    margin-top: 10px;
+}

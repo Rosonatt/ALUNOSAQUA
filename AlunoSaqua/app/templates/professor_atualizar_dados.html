@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atualizar Dados - AlunoSaqua</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/703f9c0594.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Estilo para os cards internos de notas e faltas */
+        .input-group-styled {
+            border: 1px solid var(--medium-grey);
+            border-radius: 8px;
+            padding: 15px;
+            background-color: #fcfcfc;
+        }
+        .form-label-box {
+            color: var(--secondary-green);
+            border-bottom: 2px solid var(--primary-green);
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+        .date-input-group {
+            background-color: var(--light-grey);
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        .date-input-group label {
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center" href="#">
+                    <img src="{{ url_for('static', filename='images/logocp.png') }}" alt="AlunoSaqua Logo">
+                    <h1 class="ms-2">AlunoSaqua</h1>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <div class="navbar-nav ms-auto">
+                        <span class="navbar-text me-3">Bem-vindo(a), Prof. {{ session['display_name'] }}!</span>
+                        <a class="nav-link" href="{{ url_for('professor.dashboard') }}">
+                            <i class="fas fa-arrow-left me-1"></i>Voltar
+                        </a>
+                        <a class="nav-link" href="{{ url_for('main.logout') }}">
+                            <i class="fas fa-sign-out-alt me-1"></i>Sair
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="form-container">
+        <div class="container" style="max-width: 700px;">
+            <div class="card p-4 p-md-5 shadow-lg">
+                <div class="text-center">
+                    <h2 id="attdados">Atualizar Dados em: {{ disciplina }}</h2>
+                    <p class="fs-5 mb-4">
+                        <strong>Aluno:</strong> {{ aluno.nome }} | <strong>Matrícula:</strong> {{ matricula }}
+                    </p>
+                </div>
+
+                <form method="POST" action="{{ url_for('professor.atualizar_dados', matricula=matricula, disciplina=disciplina) }}">
+                    <h3 class="text-center fs-4 mb-3"><span class="form-label-box">Notas de {{ disciplina }}</span></h3>
+                    {% set notas_list = aluno.notas.get(disciplina, []) %}
+                    <div class="input-group-styled mb-4">
+                        <label class="form-label">Lançar Notas (0 a 10):</label>
+                        <div class="row g-2">
+                            <div class="col">
+                                <input type="number" class="form-control" name="nota_{{ disciplina }}_1" value="{{ notas_list[0] if notas_list|length > 0 else '' }}" min="0" max="10" step="0.1" placeholder="Nota 1">
+                            </div>
+                            <div class="col">
+                                <input type="number" class="form-control" name="nota_{{ disciplina }}_2" value="{{ notas_list[1] if notas_list|length > 1 else '' }}" min="0" max="10" step="0.1" placeholder="Nota 2">
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+                    
+                    <h3 class="text-center fs-4 mb-3"><span class="form-label-box">Registro de Faltas</span></h3>
+                    
+                    <div class="mb-3 input-group-styled">
+                        <label for="num_faltas" class="form-label fw-bold">1. Total de Faltas na Disciplina:</label>
+                        <input type="number" id="num_faltas" name="num_faltas_count" class="form-control" min="0" value="{{ faltas_da_disciplina|length }}" oninput="generateDateFields(this.value, '{{ disciplina }}')">
+                        <small class="text-muted">Altere o número acima para exibir os campos de data.</small>
+                    </div>
+
+                    <div id="dateFieldsContainer">
+                        {# Os campos de data serão pré-preenchidos aqui pelo script inicial #}
+                    </div>
+
+
+                    <div class="d-grid gap-2 mt-4">
+                         <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                         <a href="{{ url_for('professor.dashboard', disciplina=disciplina) }}" class="btn btn-secondary">Cancelar e Voltar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Dados de falta atuais injetados pelo Flask/Jinja2 (Lista de objetos {date: '...', justified: T/F})
+        const initialFaltasData = JSON.parse('{{ faltas_da_disciplina | tojson | safe }}'.replace(/&quot;/g, '"'));
+        const container = document.getElementById('dateFieldsContainer');
+        const numFaltasInput = document.getElementById('num_faltas');
+
+        // Função que renderiza os campos de data dinamicamente
+        function generateDateFields(count, disciplina) {
+            count = parseInt(count) || 0;
+            container.innerHTML = ''; // Limpa campos antigos
+
+            for (let i = 0; i < count; i++) {
+                // Tenta usar dados existentes, se disponíveis
+                const existingData = initialFaltasData[i] || { date: '', justified: false };
+                const isJustified = existingData.justified ? 'checked' : '';
+                const dateValue = existingData.date;
+                
+                // Estrutura do Campo de Data e Checkbox
+                const div = document.createElement('div');
+                div.classList.add('date-input-group', 'd-flex', 'align-items-center', 'mb-3');
+                
+                div.innerHTML = `
+                    <label class="form-label me-3 mb-0">Falta ${i + 1}:</label>
+                    <input type="date" 
+                           name="falta_data_${i}" 
+                           class="form-control me-3" 
+                           value="${dateValue}"
+                           required>
+                    
+                    <div class="form-check form-switch ms-auto">
+                        <input class="form-check-input" 
+                               type="checkbox" 
+                               role="switch" 
+                               id="justified_${i}" 
+                               name="falta_justificada_${i}" 
+                               value="True"
+                               ${isJustified}>
+                        <label class="form-check-label text-muted" for="justified_${i}">Justificado</label>
+                    </div>
+                `;
+                container.appendChild(div);
+            }
+        }
+        
+        // CORREÇÃO APLICADA AQUI: Inicializa no carregamento e remove a conversão incorreta.
+        document.addEventListener('DOMContentLoaded', () => {
+            const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
+            const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl));
+            
+            // Garante que o valor inicial seja o count de faltas (0 ou mais)
+            const initialCount = parseInt(numFaltasInput.value) || 0;
+            generateDateFields(initialCount, '{{ disciplina }}');
+        });
+
+    </script>
+</body>
+</html>

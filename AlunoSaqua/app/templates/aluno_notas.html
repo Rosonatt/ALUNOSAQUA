@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minhas Notas - AlunoSaqua</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/703f9c0594.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Imagem de fundo para toda a página */
+        body {
+            background-image: url("{{ url_for('static', filename='images/fundotest.png') }}");
+            background-color: #028b16;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            padding-top: 0;
+            margin-top: 0;
+        }
+
+        /* Header mais compacto */
+        .navbar {
+            padding-top: 0.10rem;
+            padding-bottom: 0.5rem;
+            min-height: 80px;
+        }
+
+        .navbar-brand h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0;
+        }
+
+        .navbar-brand img {
+            height: 35px;
+        }
+
+        /* Conteúdo principal mais próximo do header */
+        .dashboard-content {
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+        
+        /* Estilo para os cards de resumo de nota */
+        .stat-card-item {
+            background-color: var(--white);
+            border: 1px solid var(--medium-grey);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .stat-card-item .icon {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center" href="#">
+                    <img src="{{ url_for('static', filename='images/logocp.png') }}" alt="AlunoSaqua Logo">
+                    <h1 class="ms-2">AlunoSaqua</h1>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <div class="navbar-nav ms-auto">
+                        <span class="navbar-text me-3">Bem-vindo(a), {{ aluno.nome }}!</span>
+                        <a class="nav-link" href="{{ url_for('aluno.dashboard') }}">
+                            <i class="fas fa-arrow-left me-1"></i>Voltar ao Menu
+                        </a>
+                        <a class="nav-link" href="{{ url_for('main.logout') }}">
+                            <i class="fas fa-sign-out-alt me-1"></i>Sair
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="dashboard-content">
+        <div class="container">
+            <h2 class="text-center text-white mb-4">MINHAS NOTAS</h2>
+
+            <div class="row g-3 mb-4">
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="stat-card-item">
+                        <div class="icon text-danger"><i class="fas fa-exclamation-triangle"></i></div>
+                        <h4 class="mb-0 text-danger">{{ dados_calculados.materias_reprovadas|length }}</h4>
+                        <small class="text-muted">Matéria(s) abaixo da Média</small>
+                    </div>
+                </div>
+
+                {# Calculando a média geral do aluno #}
+                {% set total_medias = dados_calculados.medias_materias.values()|list %}
+                {% set soma_medias = total_medias|map(attribute='media')|sum %}
+                {% set media_geral = (soma_medias / total_medias|length) if total_medias|length > 0 else 0 %}
+                
+                {# Definindo status geral baseado na média geral #}
+                {% set nota_minima = config.NOTA_MINIMA_APROVACAO_MATERIA %}
+                {% if media_geral < nota_minima %}
+                    {% set status_geral_text = 'Baixa' %}
+                    {% set status_color = 'danger' %}
+                    {% set icon_type = 'exclamation-triangle' %}
+                {% elif media_geral >= nota_minima and media_geral < (nota_minima + 2) %}
+                    {% set status_geral_text = 'Média' %}
+                    {% set status_color = 'warning' %}
+                    {% set icon_type = 'minus' %}
+                {% else %}
+                    {% set status_geral_text = 'Alta' %}
+                    {% set status_color = 'success' %}
+                    {% set icon_type = 'chart-line' %}
+                {% endif %}
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="stat-card-item">
+                         <div class="icon text-{{ status_color }}">
+                             <i class="fas fa-{{ icon_type }}"></i>
+                         </div>
+                        <h4 class="mb-0 text-{{ status_color }}">{{ status_geral_text }}</h4>
+                        <small class="text-muted">Situação nas Matérias</small>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="stat-card-item">
+                        <div class="icon text-primary"><i class="fas fa-bullseye"></i></div>
+                        <h4 class="mb-0">{{ config.NOTA_MINIMA_APROVACAO_MATERIA }}</h4>
+                        <small class="text-muted">Média necessária para aprovação</small>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <h3>DESEMPENHO POR MATÉRIA</h3>
+                    {% if dados_calculados.medias_materias %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Disciplina</th>
+                                        <th>Nota 1</th>
+                                        <th>Nota 2</th>
+                                        <th>Média </th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for disciplina, info in dados_calculados.medias_materias|dictsort %}
+                                    {% set nota_minima = config.NOTA_MINIMA_APROVACAO_MATERIA %}
+                                    {% set media = info.media %}
+                                    
+                                    {# Definindo o status individual baseado na média #}
+                                    {% if media < nota_minima %}
+                                        {% set status_text = 'Média Insuficiente' %}
+                                        {% set cell_color = 'danger' %}
+                                    {% else %}
+                                        {% set status_text = 'Média Suficiente' %}
+                                        {% set cell_color = 'success' %}
+                                    {% endif %}
+                                    
+                                    <tr>
+                                        <td>{{ disciplina }}</td>
+                                        <td>{{ info.nota1 }}</td>
+                                        <td>{{ info.nota2 }}</td>
+                                        <td>{{ info.media }}</td>
+                                        <td>
+                                            <strong class="text-{{ cell_color }}">
+                                                {{ status_text }}
+                                            </strong>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <hr>
+                        
+                        <div class="final-status text-{{ status_color }}">
+                            <strong>Aproveitamento Anual: {{ "%.1f"|format(media_geral) }} ({{ status_geral_text }})</strong>
+                        </div>
+
+                        {% if dados_calculados.materias_reprovadas %}
+                            <div class="alert alert-danger mt-3">
+                                <i class="fas fa-bell me-2"></i><strong>Atenção:</strong> Você precisa recuperar a nota nas seguintes matérias: <strong>{{ dados_calculados.materias_reprovadas | join(', ') }}</strong>
+                            </div>
+                        {% endif %}
+
+                    {% else %}
+                        <p>Nenhuma nota cadastrada para você ainda.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 AlunoSaqua. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

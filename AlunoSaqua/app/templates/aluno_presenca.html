@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Presença - AlunoSaqua</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/703f9c0594.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        main.dashboard-content {
+            background-image: url("{{ url_for('static', filename='images/fundotest.png') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        /* Variáveis de Cor do Projeto */
+        :root {
+            --primary-green: #028b16;
+            --secondary-green: #028b16;
+            --white: #FFFFFF;
+            --dark-grey: #262626;
+            --red-danger: #dc3545;
+            --highlight-color: #009688;
+            --danger-color: #ff685d;
+            --color-weekdays: #247BA0;
+            --current-day-bg: #e8f4fa;
+            --hover-bg: #e8faed;
+            --color-day-bg: white;
+            --box-shadow: #CBD4C2;
+            --non-letivo-bg: #e5f5e6;
+        }
+
+        /* Estilos do Calendário Grid */
+        .calendar { width: 100%; border-radius: 8px; overflow: hidden; margin-top: 10px; }
+        .calendar__picture { position: relative; height: 120px; padding: 15px; color: #fff; background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('{{ url_for('static', filename='images/calendar_bg.png') }}') no-repeat center / cover; text-shadow: 0 2px 2px rgba(0,0,0,0.6); overflow: hidden; z-index: 1; }
+        .calendar__picture h3 { position: relative; margin: 0; font-weight: 500; color: white; font-size: 1.5rem; }
+        .calendar__date { padding: 15px; display: grid; grid-template-columns: repeat(7, 1fr); grid-gap: 5px; box-sizing: border-box; }
+        .calendar__day { display: flex; align-items: center; justify-content: center; height: 25px; font-weight: 600; color: var(--dark-grey); font-size: 0.9em; }
+        .calendar__day:nth-child(1) { color: var(--danger-color); }
+        .calendar__number {
+            display: flex; align-items: center; justify-content: center; flex-direction: column; 
+            height: 45px; font-weight: 500; color: var(--dark-grey); border-radius: 4px; 
+            position: relative; font-size: 1.1em; background-color: var(--color-day-bg);
+            box-shadow: 0 0 3px rgba(0,0,0,0.1);
+        }
+        .calendar__number--non-letivo { background-color: var(--non-letivo-bg) !important; color: var(--secondary-green); box-shadow: inset 0 0 3px rgba(0,0,0,0.05); cursor: default; }
+        .calendar__number--padding { background-color: transparent !important; cursor: default; }
+        .calendar__number:hover:not(.calendar__number--current) { background-color: var(--hover-bg) !important; cursor: pointer; }
+        .calendar__number--current { background-color: var(--highlight-color); color: var(--white) !important; font-weight: 700; }
+        .calendar__number--absent-mark { font-size: 10px; padding: 3px; border-radius: 3px; font-weight: 600; background-color: var(--red-danger); color: white; position: absolute; bottom: 2px; right: 2px; }
+        .calendar__number--exam-mark { font-size: 10px; padding: 3px; border-radius: 3px; font-weight: 600; background-color: #ff9800; color: white; position: absolute; bottom: 2px; left: 2px; }
+        .calendar__number--holiday-icon { position: absolute; top: 2px; right: 2px; font-size: 0.7em; color: var(--primary-green); }
+        .day-number { font-weight: bold; }
+        
+        /* Estilo para o seletor de disciplina */
+        .disciplina-selector-container {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .disciplina-selector-label {
+            font-weight: 600;
+            color: var(--dark-grey);
+            margin-bottom: 8px;
+        }
+        
+        /* Estilo para o mês no centro do calendário - CORRIGIDO */
+        .calendar-month-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--dark-grey) !important; /* Cor escura para contraste com fundo branco */
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: var(--primary-green);">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center" href="#"><img src="{{ url_for('static', filename='images/logocp.png') }}" alt="AlunoSaqua Logo"><h1 class="ms-2">AlunoSaqua</h1></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <div class="navbar-nav ms-auto">
+                        <span class="navbar-text me-3" style="color: white !important;">{{ aluno.nome }}</span>
+                        <a class="nav-link" href="{{ url_for('aluno.dashboard') }}">
+                            <i class="fas fa-arrow-left me-1"></i>Voltar ao menu
+                        </a>
+                        <a class="nav-link" href="{{ url_for('main.logout') }}">
+                            <i class="fas fa-sign-out-alt me-1"></i>Sair
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="dashboard-content">
+        <div class="container">
+            <h2 class="text-center text-white mb-4">MINHA PRESENÇA</h2>
+            
+            <!-- Seletor de Disciplina - FORA DO CALENDÁRIO -->
+            <div class="disciplina-selector-container">
+                <div class="row align-items-center">
+                    <div class="col-md-3">
+                        <div class="disciplina-selector-label">
+                            <i class="fas fa-book me-2 text-primary"></i>Selecionar Disciplina:
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <form method="GET" action="{{ url_for('aluno.presenca', ano=ano_atual, mes=mes_atual) }}" class="d-flex">
+                            <select name="disciplina" class="form-select" onchange="this.form.submit()">
+                                {% for disc in disciplinas_aluno %}
+                                    <option value="{{ disc }}" {% if disc == disciplina_selecionada %}selected{% endif %}>{{ disc }}</option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                    </div>
+                    <div class="col-md-3 text-end">
+                        <small class="text-muted">Disciplina atual: <strong>{{ disciplina_selecionada }}</strong></small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                
+                <div class="col-lg-6">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            
+                            <h3 class="card-title mb-4 border-bottom pb-2">DISCIPLINA: {{ disciplina_selecionada }}</h3>
+
+                            <div class="row g-2 text-center">
+                                <div class="col-4">
+                                    <div class="bg-light p-3 rounded">
+                                        <i class="fas fa-calendar-times fs-3 text-danger mb-2"></i>
+                                        <h4 class="mb-0">{{ subject_stats.total_faltas }}</h4>
+                                        <small class="text-muted">Total (Reg.)</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="bg-light p-3 rounded">
+                                        <i class="fas fa-file-alt fs-3 text-success mb-2"></i>
+                                        <h4 class="mb-0">{{ subject_stats.justificadas }}</h4>
+                                        <small class="text-muted">Justificadas</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="bg-light p-3 rounded">
+                                        <i class="fas fa-exclamation-triangle fs-3 text-warning mb-2"></i>
+                                        <h4 class="mb-0">{{ subject_stats.nao_justificadas }}</h4>
+                                        <small class="text-muted">Risco (Não Just.)</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <hr class="my-3">
+                            <h4 class="card-title mt-4">Meta de Reprovação (Total Anual)</h4>
+                            <p class="text-muted">A reprovação é por Faltas Não Justificadas (limite: {{ MAX_FALTAS_PERMITIDAS }}).</p>
+                             
+                             {% set faltas_total_nao_justificadas = dados_calculados.num_nao_justificadas %}
+                             {% set faltas_restantes = MAX_FALTAS_PERMITIDAS - faltas_total_nao_justificadas %}
+                             {% set percent_usado = (faltas_total_nao_justificadas / MAX_FALTAS_PERMITIDAS) * 100 %}
+                             
+                             <div class="mt-4">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <strong>Risco: {{ faltas_total_nao_justificadas }}</strong>
+                                    <div class="d-flex justify-content-between mb-2">
+                                    
+                                        {% if faltas_restantes >= 0 %}
+                                            <span class="fw-bold text-{{ 'danger' if percent_usado > 75 else 'warning' if percent_usado > 50 else 'success' }}">
+                                                {{ faltas_restantes }} Falta(s) Restante(s)
+                                            </span>
+                                        {% else %}
+                                            <span class="fw-bold text-danger">
+                                                {{ faltas_total_nao_justificadas - MAX_FALTAS_PERMITIDAS }} Falta(s) Excedida(s)
+                                            </span>
+                                            {% endif %}
+                                    </div>
+                                </div>
+                                 <div class="progress" style="height: 25px;">
+                                     <div class="progress-bar bg-{{ 'danger' if percent_usado > 75 else 'warning' if percent_usado > 50 else 'success' }}" role="progressbar" style="width: {{ percent_usado }}%" aria-valuenow="{{ faltas_total_nao_justificadas }}" aria-valuemin="0" aria-valuemax="{{ MAX_FALTAS_PERMITIDAS }}">
+                                         {{ percent_usado|round(0) }}% da Cota
+                                     </div>
+                                 </div>
+                                 <div class="mt-3">
+                                     <small class="text-muted d-block">Faltas Totais (Ano): <strong>{{ dados_calculados.num_faltas }}</strong></small>
+                                     <small class="text-muted d-block">Faltas Justificadas (Ano): <strong>{{ dados_calculados.num_justificadas }}</strong></small>
+                                 </div>
+                             </div>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card shadow-sm p-0" style="background-color: #fff; border: none;">
+                        
+                        <div id="calendar" class="shadow-lg">
+                            
+                            <div class="calendar__picture">
+                                <div style="position: absolute; z-index: 10; bottom: 20px; left: 20px;">
+                                    <h3>{{ hoje.day }}, {{ hoje.strftime('%A') }}</h3>
+                                    <h3>{{ hoje.strftime('%B de %Y') }}</h3>
+                                </div>
+                            </div>
+
+                            <!-- Controles de navegação do calendário com APENAS O NOME DO MÊS NO CENTRO -->
+                            <div class="d-flex justify-content-between p-3 border-bottom" style="background-color: #f7f7f7;">
+                                
+                                <a href="{{ url_for('aluno.presenca', ano=ano_anterior, mes=mes_anterior, disciplina=disciplina_selecionada) }}" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-chevron-left"></i> Anterior
+                                </a>
+                                
+                                <!-- APENAS O NOME DO MÊS NO CENTRO - CORRIGIDO -->
+                                <span class="calendar-month-title">{{ mes_nome }}</span>
+                                
+                                <a href="{{ url_for('aluno.presenca', ano=ano_seguinte, mes=mes_seguinte, disciplina=disciplina_selecionada) }}" class="btn btn-sm btn-outline-secondary">
+                                    Próximo <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </div>
+
+                            <div class="d-flex justify-content-around p-2 border-bottom" style="font-size: 0.9em; background-color: #f7f7f7;">
+                                <div class="d-flex align-items-center text-danger"><i class="fas fa-circle me-1" style="font-size: 8px;"></i> Falta</div>
+                                <div class="d-flex align-items-center text-warning"><i class="fas fa-circle me-1" style="font-size: 8px;"></i> Prova</div>
+                                <div class="d-flex align-items-center text-success"><i class="fas fa-sun me-1"></i> Feriado/FDS</div>
+                            </div>
+
+                            <div class="calendar__date">
+                                <div class="calendar__day">Dom</div>
+                                <div class="calendar__day">Seg</div>
+                                <div class="calendar__day">Ter</div>
+                                <div class="calendar__day">Qua</div>
+                                <div class="calendar__day">Qui</div>
+                                <div class="calendar__day">Sex</div>
+                                <div class="calendar__day">Sáb</div>
+                                
+                                {% for semana in semanas %}
+                                    {% for dia in semana %}
+                                        {% set dia_str = dia.strftime('%Y-%m-%d') %}
+                                        
+                                        {% set is_weekend = dia.weekday() >= 5 %}
+                                        {% set is_holiday = dia_str in dias_nao_letivos %}
+                                        {% set is_non_letivo = is_weekend or is_holiday %}
+
+                                        {% set day_classes = ['calendar__number'] %}
+                                        {% if dia.month != mes_atual %} {% set day_classes = day_classes + ['calendar__number--padding'] %}
+                                        {% elif is_non_letivo %} {% set day_classes = day_classes + ['calendar__number--non-letivo'] %} 
+                                        {% endif %}
+                                        {% if dia == hoje %} {% set day_classes = day_classes + ['calendar__number--current'] %} {% endif %}
+
+                                        <div class="{{ day_classes|join(' ') }}">
+                                            
+                                            {{ dia.day }}
+                                            
+                                            {% if is_holiday %}
+                                                <i class="fas fa-sun calendar__number--holiday-icon" title="Feriado"></i>
+                                            {% endif %}
+                                            
+                                            {% if not is_non_letivo and dia.month == mes_atual %}
+                                                
+                                                {% for materia, datas_provas in aluno.provas.items() %}
+                                                    {% if dia_str in provas_disciplina %}
+                                                        <span class="calendar__number--exam-mark" title="Prova: {{ materia }}"></span>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            
+                                                {% if dia_str in faltas_disciplina %}
+                                                    <span class="calendar__number--absent-mark" title="Falta Registrada"></span>
+                                                {% endif %}
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                {% endfor %}
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                             <h3 class="card-title"><i class="fas fa-list-alt me-2 text-info"></i> Detalhe de Faltas por Disciplina ({{ disciplina_selecionada }})</h3>
+                             <p class="text-muted">Detalhes de ausência apenas para a matéria selecionada:</p>
+                             
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover mt-3">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Data</th>
+                                                <th class="text-center">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for falta_obj in aluno.faltas.get(disciplina_selecionada, []) %}
+                                            {% set is_justified = falta_obj.justified %}
+                                            <tr>
+                                                <td>{{ falta_obj.date }}</td>
+                                                <td class="text-center">
+                                                    {% if is_justified %}
+                                                        <span class="badge bg-success">Justificada</span>
+                                                    {% else %}
+                                                        <span class="badge bg-danger">Não Justificada</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                             
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.1/moment.min.js"></script>
+    <script src="{{ url_for('static', filename='scripts/main.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Script do gráfico Chart.js
+        const ctx = document.getElementById('presencaChart').getContext('2d');
+        const faltasPercent = {{ dados_calculados.porcentagem_faltas|round(2) }};
+        const presencasPercent = 100 - faltasPercent;
+        
+        const dataChart = { labels: ['Faltas', 'Presenças'], datasets: [{ label: 'Frequência', data: [faltasPercent, presencasPercent], backgroundColor: ['rgba(220, 53, 69, 0.8)', 'rgba(40, 167, 69, 0.8)'], borderColor: ['rgba(255, 255, 255, 1)'], borderWidth: 2, hoverOffset: 4 }]};
+        
+        new Chart(ctx, { type: 'doughnut', data: dataChart, options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { generateLabels: function(chart) { const data = chart.data; if (data.labels.length && data.datasets.length) { return data.labels.map(function(label, i) { const meta = chart.getDatasetMeta(0); const ds = data.datasets[0]; const value = ds.data[i]; return { text: `${label} (${value}%)`, fillStyle: ds.backgroundColor[i], strokeStyle: ds.borderColor[i], lineWidth: ds.borderWidth, hidden: isNaN(ds.data[i]) || meta.data[i].hidden, index: i }; }); } return []; } } } } }});
+    });
+    </script>
+</body>
+</html>

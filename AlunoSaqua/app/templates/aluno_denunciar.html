@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fazer Denúncia Anônima - AlunoSaqua</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/703f9c0594.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <style>
+        /* Estilos do Formulário */
+        .form-check-group {
+            background-color: #f8f9fa; /* light-grey */
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            margin-bottom: 1rem;
+        }
+        .form-check-group.required-field { border-left: 4px solid #dc3545; }
+        .form-check-group.valid-field { border-left: 4px solid #198754; }
+        .form-check-group .question-text {
+            margin-bottom: 10px !important;
+            color: #198754; /* secondary-green */
+            font-size: 1.1rem !important;
+            font-weight: bold;
+            display: block;
+        }
+        .form-check { margin-bottom: 8px; padding-left: 2em; }
+        .error-message { color: #dc3545; font-size: 0.875rem; margin-top: 5px; display: none; }
+        .required-label::after { content: " *"; color: #dc3545; }
+        
+        /* === ESTILOS CRÍTICOS DO CHAT === */
+        #chat-widget-container {
+            position: fixed; 
+            bottom: 30px; 
+            right: 30px; 
+            z-index: 2147483647; /* Z-Index máximo possível */
+            font-family: Arial, sans-serif;
+            display: block !important; /* Força a exibição */
+        }
+        #chat-btn {
+            background-color: #ffc107; /* Amarelo/Laranja para destaque */
+            color: #000;
+            border: 2px solid #000;
+            border-radius: 50px;
+            padding: 15px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.2s;
+        }
+        #chat-btn:hover { transform: scale(1.05); background-color: #ffca2c; }
+        
+        #chat-box {
+            display: none; 
+            width: 350px; 
+            height: 450px; 
+            background-color: white;
+            border-radius: 15px; 
+            box-shadow: 0 5px 25px rgba(0,0,0,0.4);
+            flex-direction: column; 
+            overflow: hidden; 
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+        }
+        .chat-header {
+            background-color: #0d6efd; color: white; padding: 15px; font-weight: bold;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .chat-messages {
+            flex: 1; padding: 15px; overflow-y: auto; background-color: #f0f2f5;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .chat-input-area {
+            padding: 15px; border-top: 1px solid #dee2e6; display: flex; gap: 10px; background: #fff;
+        }
+        .msg-bubble { padding: 10px 15px; border-radius: 18px; max-width: 80%; word-wrap: break-word; font-size: 0.95rem; }
+        .msg-me { background-color: #0d6efd; align-self: flex-end; color: white; border-bottom-right-radius: 4px; }
+        .msg-other { background-color: #e4e6eb; align-self: flex-start; color: black; border-bottom-left-radius: 4px; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container">
+                 <a class="navbar-brand d-flex align-items-center" href="#">
+                    <img src="{{ url_for('static', filename='images/logocp.png') }}" alt="Logo" style="height: 40px;">
+                    <h1 class="ms-2 h4 mb-0">AlunoSaqua</h1>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <div class="navbar-nav ms-auto align-items-center">
+                        <a class="nav-link text-warning fw-bold me-3" href="#" onclick="toggleChat(); return false;">
+                            <i class="fas fa-comments"></i> CHAT PSICOPEDAGOGO
+                        </a>
+                        <a class="nav-link" href="{{ url_for('aluno.dashboard') }}">Voltar</a>
+                        <a class="nav-link" href="{{ url_for('main.logout') }}">Sair</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="bg-white p-4 p-md-5 rounded shadow">
+                    <h2 class="text-center mb-3">Nova Denúncia Anônima</h2>
+                    <p class="text-center mb-4">Seu canal seguro de comunicação.</p>
+                    
+                    <form id="denunciaForm" method="POST" action="{{ url_for('aluno.denunciar') }}">
+                        <div class="mb-4 form-check-group required-field" id="descricao-group">
+                            <label class="form-label fw-bold w-100">1. O que está acontecendo? *</label>
+                            <textarea id="descricao" name="descricao" rows="5" class="form-control" required></textarea>
+                            <div class="error-message" id="descricao-error">Campo obrigatório.</div>
+                        </div>
+
+                        {% set questions = [
+                            ('agressor_tipo[]', 'Quem está envolvido?', ['Aluno', 'Professor', 'Funcionário', 'Outro'], 'checkbox'),
+                            ('natureza[]', 'Tipo de incidente:', ['Físico', 'Verbal/Psicológico', 'Social', 'Cyberbullying', 'Outro'], 'checkbox'),
+                            ('frequencia', 'Frequência:', ['Uma vez', 'Às vezes', 'Sempre'], 'radio'),
+                            ('local[]', 'Local:', ['Sala', 'Pátio', 'Banheiro', 'Online', 'Fora'], 'checkbox'),
+                            ('reportado', 'Já reportou antes?', ['Sim', 'Não'], 'radio'),
+                            ('vitima_conhecimento', 'Quem é a vítima?', ['Eu mesmo', 'Colega', 'Desconhecido'], 'radio'),
+                            ('evidencia', 'Tem provas?', ['Sim', 'Não'], 'radio'),
+                            ('gravidade', 'Gravidade:', ['Baixa', 'Média', 'Alta'], 'radio')
+                        ] %}
+
+                        {% for name, question, options, input_type in questions %}
+                        <div class="mb-3 form-check-group required-field" id="{{ name|replace('[]', '') }}-group">
+                            <p class="fw-bold">{{ loop.index + 1 }}. {{ question }}</p>
+                            {% for option in options %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="{{ input_type }}" name="{{ name }}" value="{{ option|lower }}" id="{{ name }}{{ loop.index }}">
+                                <label class="form-check-label" for="{{ name }}{{ loop.index }}">{{ option }}</label>
+                            </div>
+                            {% endfor %}
+                            <div class="error-message" id="{{ name|replace('[]', '') }}-error">Selecione uma opção.</div>
+                        </div>
+                        {% endfor %}
+
+                        <div class="mb-4 form-check-group required-field" id="expectativa-group">
+                            <label class="form-label fw-bold">10. O que você espera? *</label>
+                            <textarea id="expectativa" name="expectativa" rows="3" class="form-control" required></textarea>
+                            <div class="error-message" id="expectativa-error">Campo obrigatório.</div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">Enviar Denúncia</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="chat-widget-container">
+        <div id="chat-box">
+            <div class="chat-header">
+                <span><i class="fas fa-user-md me-2"></i>Psicopedagogo Online</span>
+                <button onclick="toggleChat()" class="btn-close btn-close-white"></button>
+            </div>
+            <div id="chat-messages" class="chat-messages">
+                <div class="text-center text-muted small mt-2">
+                    <i class="fas fa-lock"></i> Chat Seguro e Privado.<br>
+                    Um psicopedagogo entrará em breve.
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chat-input" class="form-control" placeholder="Digite aqui...">
+                <button class="btn btn-primary" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+
+        <button id="chat-btn" onclick="toggleChat()">
+            <i class="fas fa-comments fa-2x"></i>
+            <span>FALAR COM PSICOPEDAGOGO</span>
+        </button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        // Lógica do Chat
+        const socket = io();
+        const myUsername = "{{ session['display_name'] }}";
+        const myRoom = "{{ session['username'] }}"; // Sala é a matrícula do aluno
+
+        socket.on('connect', () => {
+            console.log("Conectado ao chat!");
+            socket.emit('join', {username: myUsername, room: myRoom});
+        });
+
+        socket.on('receive_message', (data) => addMessageToScreen(data));
+        socket.on('history', (msgs) => {
+            const div = document.getElementById('chat-messages');
+            div.innerHTML = '<div class="text-center text-muted small mt-2"><i class="fas fa-lock"></i> Histórico carregado</div>';
+            msgs.forEach(data => addMessageToScreen(data));
+        });
+
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if(text) {
+                socket.emit('send_message', {
+                    username: myUsername,
+                    message: text,
+                    room: myRoom,
+                    is_psico: false
+                });
+                input.value = '';
+            }
+        }
+
+        function addMessageToScreen(data) {
+            const div = document.getElementById('chat-messages');
+            const isMe = data.sender === myUsername;
+            const bubble = document.createElement('div');
+            bubble.className = `msg-bubble ${isMe ? 'msg-me' : 'msg-other'}`;
+            bubble.innerHTML = `<strong>${isMe ? 'Eu' : data.sender}:</strong> ${data.msg}`;
+            div.appendChild(bubble);
+            div.scrollTop = div.scrollHeight;
+        }
+
+        function toggleChat() {
+            const box = document.getElementById('chat-box');
+            const btn = document.getElementById('chat-btn');
+            
+            if (box.style.display === 'none' || box.style.display === '') {
+                box.style.display = 'flex';
+                btn.style.display = 'none';
+            } else {
+                box.style.display = 'none';
+                btn.style.display = 'flex';
+            }
+        }
+
+        document.getElementById('chat-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // Validação básica do form (para garantir que funcione sem o código JS gigante anterior)
+        document.getElementById('denunciaForm').addEventListener('submit', function(e) {
+            const desc = document.getElementById('descricao');
+            const exp = document.getElementById('expectativa');
+            let valid = true;
+            if(!desc.value.trim()) {
+                document.getElementById('descricao-error').style.display = 'block';
+                valid = false;
+            }
+            if(!exp.value.trim()) {
+                document.getElementById('expectativa-error').style.display = 'block';
+                valid = false;
+            }
+            if(!valid) e.preventDefault();
+        });
+    </script>
+</body>
+</html>

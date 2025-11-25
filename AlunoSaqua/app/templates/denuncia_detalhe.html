@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DETALHES DA DENÚNCIA - AlunoSaqua</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://kit.fontawesome.com/703f9c0594.js" crossorigin="anonymous"></script>
+    <style>
+        body {
+            background-image: url("{{ url_for('static', filename='images/fundotest.png') }}");
+            background-color: #028b16;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* Estilos específicos para Detalhes da Denúncia */
+        .info-label {
+            font-weight: 700;
+            color: var(--secondary-green);
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+        }
+
+        .highlight-box {
+            background-color: var(--light-grey);
+            padding: 15px;
+            border-radius: 8px;
+            font-style: italic;
+        }
+
+        /* Cores de Urgência */
+        .urgency-tag {
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+
+        .urgency-tag.alta { background-color: #dc3545; color: white; }
+        .urgency-tag.média { background-color: #ffc107; color: #333; }
+        .urgency-tag.baixa { background-color: #28a745; color: white; }
+        .urgency-tag.não-classificada { background-color: #f0f0f0; color: #6c757d; }
+        
+        .status-faltas-risk {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .text-status-risk {
+            color: var(--red-danger);
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center" href="#">
+                    <img src="{{ url_for('static', filename='images/logocp.png') }}" alt="AlunoSaqua Logo">
+                    <h1 class="ms-2">AlunoSaqua</h1>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <div class="navbar-nav ms-auto">
+                        <span class="navbar-text me-3">Bem-vindo(a), {{ session['display_name'] }}</span>
+                        <a class="nav-link" href="{{ url_for('psicopedagogo.dashboard') }}"><i class="fas fa-arrow-left me-1"></i> Voltar ao menu</a>
+                        <a class="nav-link" href="{{ url_for('main.logout') }}"><i class="fas fa-sign-out-alt me-1"></i> Sair</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="dashboard-content">
+        <div class="container">
+            <h2 class="text-center text-white mb-4">DETALHES DA DENÚNCIA (ID: {{ denuncia.serial }})</h2>
+            <div class="card shadow-lg">
+                <div class="card-body p-4">
+
+                    <h3 class="border-bottom pb-2 mb-3"><i class="fas fa-file-invoice me-2"></i> INFORMAÇÕES DO CASO
+                    </h3>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <p class="mb-1 info-label">Aluno Denunciante:</p>
+                            <p class="info-value">************ (Matrícula: ************)</p> 
+                        </div>
+                        <div class="col-md-3">
+                            <p class="mb-1 info-label">Status:</p>
+                            <p class="info-value fw-bold text-primary">{{ denuncia.status|capitalize }}</p>
+                        </div>
+                        <div class="col-md-3">
+                            <p class="mb-1 info-label">Urgência:</p>
+                            <span class="urgency-tag {{ denuncia.urgencia|lower|replace(' ', '-') }}">{{
+                                denuncia.urgencia|capitalize }}</span>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <h4><i class="fas fa-question-circle me-2"></i> RESPOSTAS DO FORMULÁRIO</h4>
+
+                    <p class="info-label mt-3">1. Descrição completa do ocorrido:</p>
+                    <div class="bg-light p-3 border rounded mb-4">
+                        <p class="mb-0">{{ denuncia.descricao }}</p>
+                    </div>
+
+                    <dl class="row">
+                        <dt class="col-sm-4 info-label">2. Problema Envolve:</dt>
+                        <dd class="col-sm-8 info-value">
+                            {{ denuncia.agressor_tipo|join(', ')|replace('_', ' ')|title }}
+                        </dd>
+
+                        <dt class="col-sm-4 info-label">3. Natureza do Ato:</dt>
+                        <dd class="col-sm-8 info-value">
+                            {{ denuncia.natureza|join(', ')|replace('_', ' ')|title }}
+                        </dd>
+
+                        <dt class="col-sm-4 info-label">4. Frequência:</dt>
+                        <dd class="col-sm-8 info-value">
+                            {{ denuncia.frequencia|replace('_', ' ')|title }}
+                        </dd>
+
+                        <dt class="col-sm-4 info-label">5. Local do Incidente:</dt>
+                        <dd class="col-sm-8 info-value">
+                            {{ denuncia.local|join(', ')|replace('_', ' ')|title }}
+                        </dd>
+
+                        <dt class="col-sm-4 info-label">6. Já foi comunicado antes:</dt>
+                        <dd class="col-sm-8 info-value">
+                            {{ denuncia.reportado|replace('_', ' ')|title }}
+                        </dd>
+
+                        <dt class="col-sm-4 info-label">7. A Vítima é:</dt>
+                        <dd class="col-sm-8 info-value">
+                            {{ denuncia.vitima_conhecimento|replace('_', ' ')|title }}
+                        </dd>
+
+                        <dt class="col-sm-4 info-label">8. Possui Evidências:</dt>
+                        <dd class="col-sm-8 info-value">
+                            {{ denuncia.evidencia|replace('_', ' ')|title }}
+                        </dd>
+
+                        <dt class="col-sm-4 info-label">9. Gravidade Percebida:</dt>
+                        <dd class="col-sm-8 info-value">
+                            {{ denuncia.gravidade|replace('_', ' ')|title }}
+                        </dd>
+                    </dl>
+
+                    <p class="info-label mt-3">10. Expectativa do denunciante:</p>
+                    <div class="bg-light p-3 border rounded mb-4">
+                        <p class="mb-0">{{ denuncia.expectativa }}</p>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <h3><i class="fas fa-clipboard-check me-2"></i> CONTEXTO ACADÊMICO</h3>
+                    {% if dados_calculados %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <p class="info-label">Métricas de Frequência (Anual):</p>
+                            <p class="status-faltas-risk text-{{ 'danger' if 'REPROVADO' in dados_calculados.status_faltas else 'success' }}">
+                                <i class="fas fa-calendar-times me-2"></i> {{ dados_calculados.num_nao_justificadas }} Faltas Não Justificadas
+                            </p>
+                            <small class="text-muted d-block">Total de Faltas Registradas: {{ dados_calculados.num_faltas }}</small>
+                            <small class="text-muted d-block">Faltas Justificadas: {{ dados_calculados.num_justificadas }}</small>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <p class="info-label">Situação por Nota:</p>
+                            
+                            {% set notas_status_class = 'danger' if dados_calculados.materias_reprovadas else 'success' %}
+                            {% set notas_status_text = 'Insuficiente' if dados_calculados.materias_reprovadas else 'Suficiente' %}
+
+                            <p class="status-faltas-risk text-{{ notas_status_class }}">
+                                <i class="fas fa-book-open me-2"></i> Média {{ notas_status_text }}
+                            </p>
+                            
+                            {% if dados_calculados.materias_reprovadas %}
+                                <small class="text-danger d-block">Pendências: <strong>{{ dados_calculados.materias_reprovadas|join(', ') }}</strong></small>
+                            {% else %}
+                                <small class="text-muted d-block">O aluno não possui pendências por nota.</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% else %}
+                        <p class="text-muted">Dados acadêmicos não disponíveis para este aluno.</p>
+                    {% endif %}
+
+                    <hr class="my-4">
+
+                    <h3><i class="fas fa-tools me-2"></i> AÇÕES DO CASO</h3>
+                    <form action="{{ url_for('psicopedagogo.fechar_caso', denuncia_id=denuncia.id) }}" method="POST">
+                        <button type="submit" class="btn btn-danger btn-lg mt-3"
+                            onclick="return confirm('Tem certeza que deseja fechar este caso? Esta ação não pode ser desfeita.');">
+                            <i class="fas fa-lock me-2"></i> FECHAR CASO
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 AlunoSaqua. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

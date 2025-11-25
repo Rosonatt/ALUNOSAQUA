@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard do Psicopedagogo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://kit.fontawesome.com/703f9c0594.js" crossorigin="anonymous"></script>
+    <style>
+        /* === CSS ORIGINAL (MANTIDO) === */
+        main.dashboard-content {
+            background-image: url("{{ url_for('static', filename='images/fundotest.png') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 100vh; /* Garante altura total */
+            padding-bottom: 50px;
+        }
+        .urgency-alta { background-color: #f8d7da; color: #721c24; font-weight: 700; }
+        .urgency-media { background-color: #fff3cd; color: #856404; }
+        .urgency-baixa { background-color: #d4edda; color: #155724; }
+        .urgency-nao-classificada { background-color: #f0f0f0; color: #6c757d; font-style: italic; }
+        
+        .status-header { background-color: var(--dark-grey); color: white; padding: 10px 15px; border-radius: 6px; }
+        .status-summary-card { border-left: 5px solid var(--secondary-green); }
+        
+        #details { color: var(--primary-green); font-weight: 600; text-decoration: none; }
+        #details:hover { text-decoration: underline; }
+
+        /* === NOVO CSS PARA O CHAT LATERAL (INTEGRADO) === */
+        .chat-drawer {
+            position: fixed;
+            top: 0;
+            right: -400px; /* Começa escondido */
+            width: 380px;
+            height: 100vh;
+            background-color: white;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.2);
+            transition: right 0.3s ease;
+            z-index: 1050; /* Acima da navbar */
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-drawer.open { right: 0; }
+        
+        .drawer-header {
+            background-color: #212529; color: white; padding: 15px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        
+        .student-search-box { padding: 10px; background-color: #f8f9fa; border-bottom: 1px solid #dee2e6; }
+        
+        .student-list { flex: 1; overflow-y: auto; max-height: 40%; border-bottom: 2px solid #dee2e6; }
+        .student-item { padding: 10px 15px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .student-item:hover { background-color: #e9ecef; }
+        .student-item.active { background-color: #cfe2ff; border-left: 4px solid #0d6efd; }
+        
+        .chat-area { flex: 1; display: flex; flex-direction: column; background-color: #f0f2f5; }
+        .messages-display { flex: 1; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        .chat-input-box { padding: 10px; background-color: white; border-top: 1px solid #dee2e6; display: flex; gap: 5px; }
+        
+        /* Balões */
+        .msg-bubble { padding: 8px 12px; border-radius: 12px; max-width: 85%; font-size: 0.9rem; word-wrap: break-word; }
+        .msg-me { align-self: flex-end; background-color: #0d6efd; color: white; }
+        .msg-other { align-self: flex-start; background-color: #e4e6eb; color: black; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center" href="#">
+                    <img src="{{ url_for('static', filename='images/logocp.png') }}" alt="AlunoSaqua Logo">
+                    <h1 class="ms-2">AlunoSaqua</h1>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <div class="navbar-nav ms-auto">
+                        <span class="navbar-text me-3">Bem-vindo(a), {{ session['display_name'] }}!</span>
+                        <button class="btn btn-outline-light btn-sm me-3" onclick="toggleDrawer()">
+                            <i class="fas fa-comments"></i> Abrir Chat
+                        </button>
+                        <a class="nav-link" href="{{ url_for('main.logout') }}"><i class="fas fa-sign-out-alt me-1"></i> Sair</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="dashboard-content">
+        <div class="container pt-4">
+            <h2 class="text-center text-white mb-4">GERENCIAMENTO DE DENÚNCIAS</h2>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'danger' else category }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% set total_abertos = denuncias|length %}
+            <div class="card status-summary-card mb-4">
+                <div class="card-body d-flex align-items-center">
+                    <i class="fas fa-bell fa-3x me-4 text-danger"></i> 
+                    <div>
+                        <h4 class="mb-0">Total de Casos Abertos:</h4>
+                        <h1 class="fw-bold display-5 text-dark">{{ total_abertos }}</h1>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow">
+                <div class="card-body">
+                    <h3>CASOS ABERTOS NA FILA <i class="fa-solid fa-triangle-exclamation text-danger"></i></h3>
+                    
+                    {% if denuncias %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Aluno</th>
+                                        <th>Status</th>
+                                        <th>Urgência (Definir)</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for denuncia in denuncias %}
+                                {% set urgency_class = 'urgency-' + denuncia.urgencia|replace(' ', '-') %}
+                                <tr class="{{ urgency_class }}">
+                                    <td><strong>{{ denuncia.serial }}</strong></td>
+                                    <td>{{ denuncia.aluno_nome }}</td>
+                                    <td>{{ denuncia.status|capitalize }}</td>
+                                    <td>
+                                        <form method="POST" action="{{ url_for('psicopedagogo.definir_urgencia', denuncia_id=denuncia.id) }}" class="d-flex gap-1">
+                                            <select name="urgencia" class="form-select form-select-sm" style="width: 130px;">
+                                                <option value="não classificada" {% if denuncia.urgencia == 'não classificada' %}selected{% endif %}>Não Classif.</option>
+                                                <option value="baixa" {% if denuncia.urgencia == 'baixa' %}selected{% endif %}>Baixa</option>
+                                                <option value="média" {% if denuncia.urgencia == 'média' %}selected{% endif %}>Média</option>
+                                                <option value="alta" {% if denuncia.urgencia == 'alta' %}selected{% endif %}>Alta</option>
+                                            </select>
+                                            <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-save"></i></button>
+                                        </form>
+                                    </td>
+                                    <td>
+                                        <a id="details" href="{{ url_for('psicopedagogo.denuncia_detalhe', denuncia_id=denuncia.id) }}" class="me-2">
+                                            Ver detalhes <i class="fa-solid fa-magnifying-glass"></i>
+                                        </a>
+                                        <button class="btn btn-sm btn-success rounded-pill px-3" onclick="openChatWith('{{ denuncia.aluno_matricula }}', '{{ denuncia.aluno_nome }}')">
+                                            <i class="fas fa-comments"></i> Chat
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-success text-center mt-4">
+                            <h4 class="alert-heading">NENHUMA DENÚNCIA ABERTA NO MOMENTO!</h4>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="chatDrawer" class="chat-drawer">
+        <div class="drawer-header">
+            <h5 class="m-0"><i class="fas fa-comments me-2"></i>Atendimento</h5>
+            <button type="button" class="btn-close btn-close-white" onclick="toggleDrawer()"></button>
+        </div>
+
+        <div class="student-search-box">
+            <input type="text" id="searchStudent" class="form-control form-control-sm" placeholder="Buscar aluno..." onkeyup="filterStudents()">
+        </div>
+
+        <div class="student-list" id="studentListContainer">
+            {% for mat, dados in alunos.items() %}
+            <div class="student-item" data-name="{{ dados.nome|lower }}" data-mat="{{ mat }}" onclick="selectStudent('{{ mat }}', '{{ dados.nome }}')">
+                <div class="fw-bold text-truncate">{{ dados.nome }}</div>
+                <small class="text-muted">{{ dados.turma }}</small>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="chat-area">
+            <div id="chatInfoBar" class="p-2 bg-light border-bottom text-center small text-muted">
+                Selecione um aluno para iniciar
+            </div>
+            <div id="messagesDisplay" class="messages-display"></div>
+        </div>
+
+        <div class="chat-input-box">
+            <input type="text" id="psicoInput" class="form-control" placeholder="Mensagem..." disabled>
+            <button class="btn btn-primary" id="psicoSendBtn" onclick="sendPsicoMessage()" disabled>
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container text-center py-3">
+            <p>&copy; 2025 AlunoSaqua. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const myName = "{{ session['display_name'] }}";
+        let currentRoom = null;
+
+        function toggleDrawer() {
+            const drawer = document.getElementById('chatDrawer');
+            drawer.classList.toggle('open');
+        }
+
+        function filterStudents() {
+            const term = document.getElementById('searchStudent').value.toLowerCase();
+            document.querySelectorAll('.student-item').forEach(item => {
+                const name = item.getAttribute('data-name');
+                item.style.display = name.includes(term) ? 'block' : 'none';
+            });
+        }
+
+        // Função chamada pelo botão da tabela
+        function openChatWith(matricula, nome) {
+            // Abre a gaveta se estiver fechada
+            const drawer = document.getElementById('chatDrawer');
+            if(!drawer.classList.contains('open')) {
+                drawer.classList.add('open');
+            }
+            // Seleciona o aluno
+            selectStudent(matricula, nome);
+        }
+
+        function selectStudent(matricula, nome) {
+            if (currentRoom === matricula) return;
+
+            // Highlight visual na lista
+            document.querySelectorAll('.student-item').forEach(el => el.classList.remove('active'));
+            const listItem = document.querySelector(`.student-item[data-mat="${matricula}"]`);
+            if(listItem) listItem.classList.add('active');
+
+            // Configura interface
+            document.getElementById('chatInfoBar').innerHTML = `<strong>Falando com:</strong> ${nome}`;
+            document.getElementById('chatInfoBar').className = 'p-2 bg-success text-white text-center small';
+            
+            const input = document.getElementById('psicoInput');
+            const btn = document.getElementById('psicoSendBtn');
+            input.disabled = false;
+            btn.disabled = false;
+            input.focus();
+
+            document.getElementById('messagesDisplay').innerHTML = '';
+
+            // Lógica Socket
+            currentRoom = matricula;
+            socket.emit('join', {username: myName, room: currentRoom});
+        }
+
+        socket.on('receive_message', (data) => addMsgToDisplay(data));
+        
+        socket.on('history', (msgs) => {
+            document.getElementById('messagesDisplay').innerHTML = '';
+            msgs.forEach(data => addMsgToDisplay(data));
+        });
+
+        function sendPsicoMessage() {
+            const input = document.getElementById('psicoInput');
+            const text = input.value.trim();
+            if(text && currentRoom) {
+                socket.emit('send_message', {
+                    username: myName,
+                    message: text,
+                    room: currentRoom,
+                    is_psico: true
+                });
+                input.value = '';
+            }
+        }
+
+        function addMsgToDisplay(data) {
+            const div = document.getElementById('messagesDisplay');
+            const isMe = data.sender === myName;
+            const bubble = document.createElement('div');
+            bubble.className = `msg-bubble ${isMe ? 'msg-me' : 'msg-other'}`;
+            bubble.innerHTML = `<strong>${isMe ? 'Eu' : data.sender}:</strong> ${data.msg}`;
+            div.appendChild(bubble);
+            div.scrollTop = div.scrollHeight;
+        }
+
+        document.getElementById('psicoInput').addEventListener('keypress', function(e) {
+            if(e.key === 'Enter') sendPsicoMessage();
+        });
+    </script>
+</body>
+</html>
