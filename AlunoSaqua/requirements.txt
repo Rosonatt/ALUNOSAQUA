@@ -1,3 +1,5 @@
-Flask
+flask
+flask-socketio
 gunicorn
-psycopg2-binary
+gevent
+werkzeug
