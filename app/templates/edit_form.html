@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar {{ user_type | capitalize }} - {{ usuario.nome }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/703f9c0594.js" crossorigin="anonymous"></script>
+    <style>
+        body { background-color: #f8f9fa; }
+        .edit-card { 
+            margin-top: 50px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+            border-radius: 15px; 
+        }
+        .header-edit {
+            background-color: #028b16; /* Verde do seu sistema */
+            color: white;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card edit-card mx-auto" style="max-width: 700px;">
+            <div class="header-edit">
+                <h2 class="card-title mb-0">
+                    <i class="fas fa-edit me-2"></i>Editar Cadastro: {{ usuario.nome }}
+                </h2>
+                <small class="text-white-50">Tipo: {{ user_type | capitalize }} (ID: {{ user_id }})</small>
+            </div>
+            
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('admin.edit_user', user_id=user_id, user_type=user_type) }}">
+                    
+                    <h5 class="mb-3 text-secondary">Informações Básicas</h5>
+                    
+                    <div class="mb-3">
+                        <label for="id_login" class="form-label fw-bold">ID de Login / Matrícula</label>
+                        <input type="text" class="form-control" id="id_login" name="id_login" value="{{ user_id }}" readonly>
+                        <input type="hidden" name="id_original" value="{{ user_id }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome Completo</label>
+                        <input type="text" class="form-control" id="nome" name="nome" value="{{ usuario.nome }}" required>
+                    </div>
+
+                    <hr>
+                    <h5 class="mb-3 text-secondary">Dados Específicos</h5>
+                    
+                    {% if user_type == 'alunos' %}
+                    <div class="mb-3 p-3 border rounded bg-light">
+                        <label for="turma" class="form-label fw-bold text-success">Turma</label>
+                        <input type="text" class="form-control" id="turma" name="turma" value="{{ usuario.turma if 'turma' in usuario }}">
+                        <small class="text-muted">A matrícula, notas e faltas devem ser editadas separadamente, se necessário.</small>
+                    </div>
+                    {% endif %}
+
+                    {% if user_type == 'professores' %}
+                    <div class="mb-3 p-3 border rounded bg-light">
+                        <label for="disciplinas" class="form-label fw-bold text-success">Disciplinas</label>
+                        <input type="text" class="form-control" id="disciplinas" name="disciplinas" 
+                               value="{% if 'disciplinas' in usuario %}{{ usuario.disciplinas | join(', ') }}{% endif %}">
+                        <small class="text-muted">Separe as disciplinas por vírgula (ex: Matemática, Física).</small>
+                    </div>
+                    {% endif %}
+
+                    {% if user_type == 'pais' %}
+                    <div class="mb-3 p-3 border rounded bg-light">
+                        <label for="filho_matricula" class="form-label fw-bold text-success">Matrícula do Filho</label>
+                        <input type="text" class="form-control" id="filho_matricula" name="filho_matricula" 
+                               value="{{ usuario.filho_matricula if 'filho_matricula' in usuario }}">
+                    </div>
+                    {% endif %}
+                    
+                    <hr>
+                    <div class="mb-3">
+                        <label for="senha" class="form-label">Nova Senha (Deixe em branco para não alterar)</label>
+                        <input type="password" class="form-control" id="senha" name="senha" placeholder="********">
+                    </div>
+                    
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save me-2"></i>Salvar Alterações
+                        </button>
+                        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Voltar sem Salvar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

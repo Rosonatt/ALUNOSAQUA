@@ -17,7 +17,6 @@ HOLIDAYS_2025 = [
 ]
 
 # --- DADOS INICIAIS (SEED) ---
-# Estes dados só serão usados se o arquivo de banco de dados ainda não existir.
 DADOS_PADRAO = {
     'users': {
         'alunos': {
@@ -106,9 +105,11 @@ def salvar_banco():
 # Inicializa o banco ao importar este arquivo
 carregar_banco()
 
-# --- FUNÇÕES AUXILIARES ---
+# --- FUNÇÕES AUXILIARES (Lógica de Cálculo) ---
 def calcular_dados_aluno(aluno_data):
-    # (Mantive sua lógica de cálculo exata aqui)
+    # ... (Mantenha toda a sua lógica de cálculo de faltas e notas aqui) ...
+    # O código é grande, então mantive a estrutura original, assumindo que está correta.
+    
     faltas_por_materia = {}
     num_justificadas_total = 0
     num_faltas_total = 0
@@ -183,3 +184,31 @@ def adicionar_usuario(tipo, matricula, dados):
 
 def get_todos_usuarios():
     return USERS
+
+# --------------------------------------------------------------------------
+# --- FUNÇÕES DE CRUD PARA AS ROTAS (BUSCAR, ATUALIZAR E DELETAR) - NOVO! ---
+# --------------------------------------------------------------------------
+
+def buscar_usuario(user_type, user_id):
+    """ Retorna os dados de um usuário específico ou None se não encontrado. """
+    if user_type in USERS and user_id in USERS[user_type]:
+        # Retorna uma cópia para evitar alterações acidentais
+        return USERS[user_type][user_id].copy() 
+    return None
+
+def atualizar_usuario(user_type, user_id, novos_dados):
+    """ Atualiza os dados de um usuário no banco e salva no disco. """
+    if user_type in USERS and user_id in USERS[user_type]:
+        # Atualiza os dados do usuário com os novos dados
+        USERS[user_type][user_id].update(novos_dados)
+        salvar_banco()
+        return True
+    return False
+
+def deletar_usuario(user_type, user_id):
+    """ Remove um usuário do banco de dados e salva no disco. """
+    if user_type in USERS and user_id in USERS[user_type]:
+        del USERS[user_type][user_id]
+        salvar_banco()
+        return True
+    return False
